@@ -16,10 +16,10 @@ func main() {
 	router := mux.NewRouter()
 
 	// API Routes
-	router.Path("/api/users").Methods("POST").HandlerFunc(users.CreateToken)
+	router.Path("/api/users").Methods("POST").Handler(addMiddlewares(http.HandlerFunc(users.CreateToken), authMiddleware.SetHeader))
 	router.Path("/api/users").Methods("GET").Handler(
 		// TODO: Add middlewares here
-		addMiddlewares(http.HandlerFunc(users.ValidateUser), authMiddleware.SetHeader),
+		addMiddlewares(http.HandlerFunc(users.ValidateUser), authMiddleware.CheckAuthToken),
 	)
 
 	fmt.Println("Listening to port 5000")
@@ -32,7 +32,6 @@ func main() {
 
 // Registering all the middlewares specified for every URL path
 func addMiddlewares(h http.Handler, middlewares ...func(handler http.Handler) http.Handler) http.Handler {
-	fmt.Println("Inside add middleware")
 	for _, middleware := range middlewares {
 		h = middleware(h)
 	}

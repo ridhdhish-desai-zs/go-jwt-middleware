@@ -1,6 +1,7 @@
 package users
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -29,6 +30,18 @@ func CreateToken(res http.ResponseWriter, req *http.Request) {
 	_, _ = res.Write([]byte(fmt.Sprintf(`{"token": %v}`, token)))
 }
 
+/*
+URL: /api/users
+Method: GET
+route: Unprotected
+Description: Fetch all users
+*/
 func ValidateUser(res http.ResponseWriter, req *http.Request) {
-	_, _ = res.Write([]byte(`{"Message": "Welcome to the world of magic"}`))
+	ctx := req.Context()
+	data := ctx.Value("data")
+	fmt.Printf("%T, %v", data, data)
+
+	jsonData, _ := json.Marshal(data)
+
+	_, _ = res.Write([]byte(fmt.Sprintf(`"data": {"user": {%v}}`, string(jsonData))))
 }
